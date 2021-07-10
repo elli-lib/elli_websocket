@@ -2,19 +2,22 @@
 
 *A WebSocket handler for [elli][]*
 
-[![Hex.pm][hex badge]][hex package]
-[![Erlang][erlang badge]][erlang downloads]
-[![Travis CI][travis badge]][travis builds]
+[![Build Status][gh-actions-badge]][gh-actions]
 [![Coverage Status][coveralls badge]][coveralls link]
+[![Hex.pm][hex badge]][hex package]
+[![Tags][github tags badge]][github tags]
+[![Erlang][erlang badge]][erlang downloads]
 [![Apache License][license badge]](LICENSE)
 
 [elli]: https://github.com/elli-lib/elli
 [hex badge]: https://img.shields.io/hexpm/v/elli_websocket.svg
 [hex package]: https://hex.pm/packages/elli_websocket
-[erlang badge]: https://img.shields.io/badge/erlang-%E2%89%A518.0-red.svg
+[github tags]: https://github.com/elli-lib/elli_websocket/tags
+[github tags badge]: https://img.shields.io/github/tag/elli-lib/elli_websocket.svg
+[erlang badge]: https://img.shields.io/badge/erlang-%E2%89%A521.0-red.svg
 [erlang downloads]: http://www.erlang.org/downloads
-[travis builds]: https://travis-ci.org/elli-lib/elli_websocket
-[travis badge]: https://travis-ci.org/elli-lib/elli_websocket.svg
+[gh-actions-badge]: https://github.com/elli-lib/elli_websocket/workflows/ci%2Fcd/badge.svg
+[gh-actions]: https://github.com/elli-lib/elli_websocket/actions
 [coveralls badge]: https://coveralls.io/repos/github/elli-lib/elli_websocket/badge.svg?branch=develop
 [coveralls link]: https://coveralls.io/github/elli-lib/elli_websocket?branch=develop
 [license badge]: https://img.shields.io/hexpm/l/elli_websocket.svg

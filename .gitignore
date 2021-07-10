@@ -14,3 +14,11 @@ erl_crash.dump
 logs
 _build
 .idea
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*

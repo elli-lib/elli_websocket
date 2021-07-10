@@ -1,0 +1,45 @@
+name: ci/cd
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+      - 'develop'
+  push:
+    branches:
+      - 'main'
+      - 'develop'
+
+jobs:
+  build:
+    name: Test on OTP ${{ matrix.otp_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        otp_version: ['24', '23', '22', '21']
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{ matrix.otp_version }}
+        rebar3-version: '3.15'
+
+    - name: Compile
+      run: rebar3 compile
+    - name: EUnit tests
+      run: rebar3 eunit
+    - name: Dialyzer
+      run: rebar3 dialyzer
+    - name: XRef
+      run: rebar3 xref
+
+    - name: Covertool
+      if: ${{ always() }}
+      run: rebar3 covertool generate
+    - uses: codecov/codecov-action@v1
+      with:
+        file: _build/test/covertool/elli_websocket.covertool.xml
+        env_vars: OTP_VERSION

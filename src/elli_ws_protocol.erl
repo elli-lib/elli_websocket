@@ -38,6 +38,8 @@
 
 -module(elli_ws_protocol).
 
+-include_lib("elli/src/elli_util.hrl").
+
 %% Ignore the deprecation warning for crypto:sha/1.
 %% @todo Remove when we support only R16B+.
 -compile(nowarn_deprecated_function).
@@ -92,14 +94,16 @@ upgrade(Req, Env, Handler, HandlerOpts) ->
     try websocket_upgrade(State, Req) of
         {ok, State2, Req2} -> handler_init(State2, Req2, HandlerOpts)
     catch
-        throw:Exc ->
-            handle_event(Req, Handler, websocket_throw, [Exc, erlang:get_stacktrace()], HandlerOpts),
+        throw:{ResponseCode, Headers, Body} when is_integer(ResponseCode) ->
+            {response, ResponseCode, Headers, Body};
+        ?WITH_STACKTRACE(throw, Exc, Stacktrace)
+            handle_event(Req, Handler, websocket_throw, [Exc, Stacktrace], HandlerOpts),
             elli_ws_request_adapter:maybe_reply(400, Req);
-        error:Error ->
-            handle_event(Req, Handler, websocket_error, [Error, erlang:get_stacktrace()], HandlerOpts),
+        ?WITH_STACKTRACE(error, Error, Stacktrace)
+            handle_event(Req, Handler, websocket_error, [Error, Stacktrace], HandlerOpts),
             elli_ws_request_adapter:maybe_reply(400, Req);
-        exit:Exit ->
-            handle_event(Req, Handler, websocket_exit, [Exit, erlang:get_stacktrace()], HandlerOpts),
+        ?WITH_STACKTRACE(exit, Exit, Stacktrace)
+            handle_event(Req, Handler, websocket_exit, [Exit, Stacktrace], HandlerOpts),
             elli_ws_request_adapter:maybe_reply(400, Req)
     end.
 
@@ -169,14 +173,16 @@ handler_init(State=#state{env=Env, handler=Handler}, Req, HandlerOpts) ->
             elli_ws_request_adapter:ensure_response(Req2, 400),
             {ok, Req2, [{result, closed}|Env]}
     catch
-        throw:Exc ->
-            handle_event(Req, Handler, websocket_throw, [Exc, erlang:get_stacktrace()], HandlerOpts),
+        throw:{ResponseCode, Headers, Body} when is_integer(ResponseCode) ->
+            {response, ResponseCode, Headers, Body};
+        ?WITH_STACKTRACE(throw, Exc, Stacktrace)
+            handle_event(Req, Handler, websocket_throw, [Exc, Stacktrace], HandlerOpts),
             elli_ws_request_adapter:maybe_reply(400, Req);
-        error:Error ->
-            handle_event(Req, Handler, websocket_error, [Error, erlang:get_stacktrace()], HandlerOpts),
+        ?WITH_STACKTRACE(error, Error, Stacktrace)
+            handle_event(Req, Handler, websocket_error, [Error, Stacktrace], HandlerOpts),
             elli_ws_request_adapter:maybe_reply(400, Req);
-        exit:Exit ->
-            handle_event(Req, Handler, websocket_exit, [Exit, erlang:get_stacktrace()], HandlerOpts),
+        ?WITH_STACKTRACE(exit, Exit, Stacktrace)
+            handle_event(Req, Handler, websocket_exit, [Exit, Stacktrace], HandlerOpts),
             elli_ws_request_adapter:maybe_reply(400, Req)
     end.
 
@@ -665,12 +671,14 @@ handler_call(State=#state{handler=Handler}, Req, HandlerState,
         {shutdown, Req2, HandlerState2} ->
             websocket_close(State, Req2, HandlerState2, {normal, shutdown})
     catch
-        throw:Exc ->
-            handle_event(Req, Handler, websocket_throw, [Exc, erlang:get_stacktrace()], HandlerState);
-        error:Error ->
-            handle_event(Req, Handler, websocket_error, [Error, erlang:get_stacktrace()], HandlerState);
-        exit:Exit ->
-            handle_event(Req, Handler, websocket_exit, [Exit, erlang:get_stacktrace()], HandlerState)
+        throw:{ResponseCode, Headers, Body} when is_integer(ResponseCode) ->
+            {response, ResponseCode, Headers, Body};
+        ?WITH_STACKTRACE(throw, Exc, Stacktrace)
+            handle_event(Req, Handler, websocket_throw, [Exc, Stacktrace], HandlerState);
+        ?WITH_STACKTRACE(error, Error, Stacktrace)
+            handle_event(Req, Handler, websocket_error, [Error, Stacktrace], HandlerState);
+        ?WITH_STACKTRACE(exit, Exit, Stacktrace)
+            handle_event(Req, Handler, websocket_exit, [Exit, Stacktrace], HandlerState)
     end.
 
 websocket_opcode(text) -> 1;
